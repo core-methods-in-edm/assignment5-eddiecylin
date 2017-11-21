@@ -16,7 +16,7 @@ library(party)
 
 ## Part I
 ```{r}
-D1 <- 
+D1 <- read.csv("intelligent_tutor.csv")
 ```
 
 ##Classification Tree
@@ -59,6 +59,9 @@ plot(score_ctree)
 ```
 
 Please interpret the tree, which two behaviors do you think the teacher should most closely pay attemtion to?
+```{r}
+# Teachers should be advised to focus on number of asked hints and the number of prior problem attempted. Their associated numbers(threshold) are useful as indicators. Another indicator of correct percentage of prior questions is of lesser value since an odd of 0.6 does not reveal much more than random chance of getting a question correct (?)
+```
 
 #Test Tree
 Upload the data "intelligent_tutor_new.csv". This is a data set of a differnt sample of students doing the same problems in the same system. We can use the tree we built for the previous data set to try to predict the "advice" we should give the teacher about these new students. 
@@ -66,12 +69,26 @@ Upload the data "intelligent_tutor_new.csv". This is a data set of a differnt sa
 ```{r}
 #Upload new data
 
-D2 <- 
+D2 <- read.csv("intelligent_tutor_new.csv")
 
 #Generate predicted advice for new students based on tree generated from old students
 
-D2$prediction <- predict(score_ctree, D2)
+D2$prediction <- predict(score_ctree, D2) # 200 data points
 
 ``` 
 ## Part III
 Compare the predicted advice with the actual advice that these studnts recieved. What is the difference between the observed and predicted results?
+```{r}
+
+# applying prior threshold to create observed action results
+D2$advice.actual <- ifelse(D2$score <=0.4, "intervene", ifelse(D2$score > 0.4 & D2$score <=0.8, "monitor", "no action")) # the scores for all data points in D2 are all 1.0
+
+# calculate the error percentage
+D2$advice.actual <- as.character(D2$advice.actual)
+D2$prediction <- as.character(D2$prediction)
+
+error.count <- sum(as.integer(D2$advice.actual != D2$prediction)) # 84
+error.percentage <- (error.count/length(D2$advice.actual)) * 100
+paste("the error rate between actual and predicted actions is: ", error.percentage) # 42%
+```
+
